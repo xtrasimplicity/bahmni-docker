@@ -3,6 +3,12 @@ set -eo pipefail
 
 mysqld &
 
+echo "Waiting for MySQL to start..."
+until echo exit | telnet localhost 3306 > /tmp/mysql_connect.out  2>&1 ; grep "Connected to localhost" /tmp/mysql_connect.out; do
+ printf '.'
+ sleep 1
+done
+
 # Update configuration
 bahmni -i local update-config
 
