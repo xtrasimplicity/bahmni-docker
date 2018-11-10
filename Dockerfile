@@ -23,7 +23,6 @@ RUN mv /sbin/iptables /sbin/iptables-old && \
 
 RUN bahmni -i local install
 
-RUN yum install -y telnet
 ADD artifacts/bin/start_bahmni /usr/sbin/
 RUN chmod +x /usr/sbin/start_bahmni
 
