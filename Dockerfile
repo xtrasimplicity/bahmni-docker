@@ -29,6 +29,6 @@ RUN chmod +x /usr/sbin/start_bahmni
 
 EXPOSE 80 443 8069
 
-VOLUME /var/www /var/log /var/lib/mysql /home/bahmni /etc/bahmni-installer/deployment-artifacts
+VOLUME /var/www /var/log /var/lib/mysql /home/bahmni /etc/bahmni-installer/deployment-artifacts /etc/bahmni-certs
 
 CMD [ "/usr/sbin/start_bahmni" ]
