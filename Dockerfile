@@ -1,9 +1,17 @@
 FROM centos:6.9
 
-RUN yum install -y python-setuptools openssh sudo && \
-    yum install -y https://dl.bintray.com/bahmni/rpm/rpms/bahmni-installer-0.91-70.noarch.rpm
+RUN yum install -y python-setuptools openssh sudo wget unzip && \
+    yum install -y https://dl.bintray.com/bahmni/rpm/rpms/bahmni-installer-0.85-91.noarch.rpm
 
-RUN curl -L https://goo.gl/R8ekg5 >> /etc/bahmni-installer/setup.yml
+RUN cd /etc/bahmni-installer/deployment-artifacts && \
+    wget https://github.com/Bahmni/endtb-config/archive/release-0.85.zip && \
+    unzip release-0.85.zip && \
+    mv endtb-config-release-0.85 endtb_config && \
+    cp endtb_config/dbdump/mysql_dump.sql openmrs_backup.sql
+
+RUN wget https://raw.githubusercontent.com/Bahmni/endtb-config/release-0.85/playbooks/examples/inventory -O /etc/bahmni-installer/local
+ADD artifacts/setup.yml /etc/bahmni-installer
+ADD artifacts/jre-7u79-linux-x64.rpm /opt
 
 # Ignore Selinux tasks
 RUN echo '---' > /opt/bahmni-installer/bahmni-playbooks/roles/selinux/tasks/main.yml
@@ -21,7 +29,14 @@ RUN mv /sbin/iptables /sbin/iptables-old && \
   echo -e '#!/bin/sh\necho "This is a fake iptables service. It does not do anything."' > /etc/init.d/iptables && \
   chmod +x /etc/init.d/iptables
 
-RUN bahmni -i local install
+RUN yum clean all && \
+    bahmni -i local install
+
+RUN bahmni --implementation_play=/var/www/bahmni_config/playbooks/all.yml -i local install-impl
+
+RUN ln -s /etc/bahmni-installer/bahmni.conf /etc/bahmni-installer/bahmni-emr-installer.conf
+
+RUN su -s /bin/bash bahmni && /usr/bin/bahmni-batch
 
 ADD artifacts/bin/start_bahmni /usr/sbin/
 RUN chmod +x /usr/sbin/start_bahmni

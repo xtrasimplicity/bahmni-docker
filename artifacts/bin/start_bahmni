@@ -2,7 +2,6 @@
 set -eo pipefail
 
 service mysqld start
-service postgresql-9.2 start
 
 # Update configuration
 bahmni -i local update-config
